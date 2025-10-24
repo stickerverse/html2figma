@@ -20,12 +20,18 @@ npm run type-check     # TypeScript type checking
 ```
 
 ### Figma Plugin (`chrome-extension/figma-plugin/`)
+**IMPORTANT:** The Figma plugin MUST be built before it can be used in Figma. The TypeScript files need to be compiled to JavaScript.
+
 ```bash
 cd chrome-extension/figma-plugin
 npm install
-npm run build          # Compile TypeScript (main + UI)
+npm run build          # Compile TypeScript (main + UI) - REQUIRED before first use
 npm run watch          # Watch mode for development
 ```
+
+After building, the following files will be created:
+- `dist/code.js` - Main plugin code (referenced in manifest.json)
+- `ui/ui.js` - UI code (referenced in ui/index.html)
 
 ## Architecture
 
@@ -123,6 +129,35 @@ Styles are deduplicated and tracked:
 3. Select `chrome-extension/figma-plugin/manifest.json`
 4. Use Figma DevTools (Plugins > Development > Open Console) for debugging
 5. Check `stats` object in `code.ts` for import statistics
+
+## Troubleshooting
+
+### Plugin UI not loading / Cannot upload JSON file
+**Problem:** Figma plugin shows blank UI or file upload doesn't work
+**Solution:** The plugin must be built first. Run:
+```bash
+cd chrome-extension/figma-plugin
+npm install
+npm run build
+```
+Verify these files exist:
+- `chrome-extension/figma-plugin/dist/code.js`
+- `chrome-extension/figma-plugin/ui/ui.js`
+
+### TypeScript compilation errors with Figma types
+**Problem:** Build fails with "Cannot find name 'figma'" or similar errors
+**Solution:**
+- Ensure `@figma/plugin-typings` is installed
+- Check that `tsconfig.json` has `"lib": ["ES2017"]` (not ES2015)
+- For Object.entries, Object.values, String.padStart support, use ES2017+
+
+### Extension not capturing page properly
+**Problem:** Extension captures incomplete or incorrect data
+**Solution:**
+1. Check browser console for errors during capture
+2. Ensure the page is fully loaded before capturing
+3. Try disabling browser extensions that modify the DOM
+4. Check that `injected-script.js` was compiled to `chrome-extension/dist/`
 
 ## Common Development Patterns
 
